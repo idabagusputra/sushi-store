@@ -1,0 +1,80 @@
+<script setup>
+import { ref } from "vue";
+import { useForm } from "@inertiajs/inertia-vue3";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import ActionMessage from "@/Components/ActionMessage.vue";
+import FormSection from "@/Components/FormSection.vue";
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
+
+const nameInput = ref(null);
+
+const form = useForm({
+    name: null,
+});
+
+const updateData = (sushi_master) => {
+    form.name = sushi_master.name;
+    form.put(route("sushis.masters.update", sushi_master.id), {
+        errorBag: "updateData",
+        preserveScroll: true,
+        onError: () => {
+            if (form.errors.name) {
+                form.reset("name");
+                nameInput.value.focus();
+            }
+        },
+    });
+};
+
+defineProps({
+    sushi_master: Object,
+});
+</script>
+
+<template>
+    <AppLayout title="Sushi Masters">
+        <template #header>
+            <h2 class="font-semibold text-xl text-white leading-tight">
+                Sushi Masters
+            </h2>
+        </template>
+
+        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            <FormSection @submitted="updateData(sushi_master)">
+                <template #title>Edit Sushi Master</template>
+
+                <template #description> Edit a sushi master data. </template>
+
+                <template #form>
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="name" value="Sushi Master Name" />
+                        <TextInput
+                            id="name"
+                            ref="nameInput"
+                            v-model="sushi_master.name"
+                            type="text"
+                            class="mt-1 block w-full"
+                        />
+                        <InputError :message="form.errors.name" class="mt-2" />
+                    </div>
+                </template>
+
+                <template #actions>
+                    <ActionMessage :on="form.recentlySuccessful" class="mr-3">
+                        Saved.
+                    </ActionMessage>
+
+                    <PrimaryButton
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                    >
+                        Save
+                    </PrimaryButton>
+                </template>
+            </FormSection>
+        </div>
+    </AppLayout>
+</template>
